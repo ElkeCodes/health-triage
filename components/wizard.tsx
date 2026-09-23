@@ -144,6 +144,11 @@ function WizardRoot({
       >
         <ProgressLabel>{`Stap ${activeStepIndex + 1} van de ${steps.length}`}</ProgressLabel>
       </Progress>
+      <div className="max-w-2xl space-y-3">
+        <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          {currentStepDefinition.props.title}
+        </h1>
+      </div>
 
       {isComplete ? (
         <Alert>
@@ -160,16 +165,11 @@ function WizardRoot({
             </Alert>
           ) : null}
 
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">
-              {currentStepDefinition.props.title}
+          {currentStepDefinition.props.description ? (
+            <p className="text-sm text-muted-foreground">
+              {currentStepDefinition.props.description}
             </p>
-            {currentStepDefinition.props.description ? (
-              <p className="text-sm text-muted-foreground">
-                {currentStepDefinition.props.description}
-              </p>
-            ) : null}
-          </div>
+          ) : null}
 
           <div className="space-y-6">
             {steps.map((step, index) => (

@@ -3,7 +3,15 @@
 import type * as React from "react";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+import { Field, FieldLabel, FieldLegend, FieldSet } from "./ui/field";
 
 type TriageFormValues = {
   age: string;
@@ -20,9 +28,10 @@ type TriageStepProps = {
 function PatientDetailsStep({ values, setValues }: TriageStepProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <label className="grid gap-2">
-        <span className="text-sm font-medium">Leeftijd</span>
+      <Field className="grid gap-2">
+        <FieldLabel htmlFor="age">Leeftijd</FieldLabel>
         <Input
+          id="age"
           type="number"
           min="0"
           value={values.age}
@@ -32,10 +41,10 @@ function PatientDetailsStep({ values, setValues }: TriageStepProps) {
           placeholder="34"
           required
         />
-      </label>
+      </Field>
 
-      <fieldset className="grid gap-2 md:col-span-2">
-        <legend className="text-sm font-medium">Geboortegeslacht</legend>
+      <FieldSet className="grid gap-2 md:col-span-2">
+        <FieldLegend>Geboortegeslacht</FieldLegend>
         <RadioGroup
           value={values.gender}
           onValueChange={(value) =>
@@ -46,43 +55,54 @@ function PatientDetailsStep({ values, setValues }: TriageStepProps) {
           }
           className="grid gap-3 sm:grid-cols-2"
         >
-          <label className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
+          <FieldLabel className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
             <RadioGroupItem value="male" />
             <span>Man</span>
-          </label>
-          <label className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
+          </FieldLabel>
+          <FieldLabel className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
             <RadioGroupItem value="female" />
             <span>Vrouw</span>
-          </label>
+          </FieldLabel>
         </RadioGroup>
-      </fieldset>
+      </FieldSet>
     </div>
   );
 }
 
 function SymptomsStep({ values, setValues }: TriageStepProps) {
+  const symptoms = [
+    "Hoofdpijn",
+    "Koorts",
+    "Verkouden",
+    "Misselijkheid",
+    "Buikpijn",
+  ];
   return (
     <div className="grid gap-4">
-      <label className="grid gap-2">
-        <span className="text-sm font-medium">
+      <Field className="grid gap-2">
+        <FieldLabel htmlFor="symptoms-combobox">
           Welke symptomen ervaart u?
-        </span>
-        <Textarea
-          value={values.symptoms}
-          onChange={(event) =>
-            setValues((current) => ({
-              ...current,
-              symptoms: event.target.value.split("\n"),
-            }))
-          }
-          placeholder="Describe the main symptoms, when they started, and anything that makes them better or worse."
-          rows={5}
-          required
-        />
-      </label>
+        </FieldLabel>
+        <Combobox items={symptoms}>
+          <ComboboxInput
+            id="symptoms-combobox"
+            placeholder="Selecteer een symptoom"
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>Geen symptomen gevonden.</ComboboxEmpty>
+            <ComboboxList>
+              {(item) => (
+                <ComboboxItem key={item} value={item}>
+                  {item}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </Field>
 
-      <fieldset className="grid gap-2">
-        <legend className="text-sm font-medium">Urgentie</legend>
+      <FieldSet className="grid gap-2">
+        <FieldLegend>Urgentie</FieldLegend>
         <RadioGroup
           value={values.urgency}
           onValueChange={(value) =>
@@ -93,25 +113,38 @@ function SymptomsStep({ values, setValues }: TriageStepProps) {
           }
           className="grid gap-3"
         >
-          <label className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
-            <RadioGroupItem value="mild" />
-            <span>Licht en stabiel</span>
-          </label>
-          <label className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
-            <RadioGroupItem value="moderate" />
-            <span>Matig en hinderlijk</span>
-          </label>
-          <label className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
-            <RadioGroupItem value="severe" />
-            <span>Ernstig of snel verslechterend</span>
-          </label>
+          <Field
+            orientation="horizontal"
+            className="flex items-center gap-3 rounded-lg border border-input px-3 py-2"
+          >
+            <RadioGroupItem value="mild" id="urgency-mild" />
+            <FieldLabel htmlFor="urgency-mild">Licht en stabiel</FieldLabel>
+          </Field>
+          <Field
+            orientation="horizontal"
+            className="flex items-center gap-3 rounded-lg border border-input px-3 py-2"
+          >
+            <RadioGroupItem value="moderate" id="urgency-moderate" />
+            <FieldLabel htmlFor="urgency-moderate">
+              Matig en hinderlijk
+            </FieldLabel>
+          </Field>
+          <Field
+            orientation="horizontal"
+            className="flex items-center gap-3 rounded-lg border border-input px-3 py-2"
+          >
+            <RadioGroupItem value="severe" id="urgency-severe" />
+            <FieldLabel htmlFor="urgency-severe">
+              Ernstig of snel verslechterend
+            </FieldLabel>
+          </Field>
         </RadioGroup>
-      </fieldset>
+      </FieldSet>
     </div>
   );
 }
 
-function ReviewStep({ values, setValues }: TriageStepProps) {
+function ReviewStep({ values }: TriageStepProps) {
   return (
     <div className="grid gap-4">
       <div className="grid gap-3 rounded-xl border border-input bg-muted/40 p-4 text-sm">

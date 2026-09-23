@@ -47,22 +47,22 @@ function TriageWizard() {
 
   return (
     <Wizard
-      completionTitle="Intake captured"
-      completionDescription="The wizard is finished and the intake details are ready for the next stage."
-      finishLabel="Submit intake"
+      completionTitle="Intake vastgelegd"
+      completionDescription="De wizard is voltooid en de intakegegevens zijn klaar voor de volgende fase."
+      finishLabel="Verstuur intake"
       onComplete={() => setSubmitted(true)}
     >
       <Wizard.Step
-        title="Patient gegevens"
-        description="Start with the basics so the care team knows who they are helping."
+        title="Patiëntgegevens"
+        description="Begin met de basisinformatie zodat het zorgteam weet wie ze helpen."
         validate={validatePatientDetails}
       >
         <PatientDetailsStep values={values} setValues={setValues} />
       </Wizard.Step>
 
       <Wizard.Step
-        title="Symptoms"
-        description="Capture the main concern and how urgent it feels right now."
+        title="Welke symptomen heeft u?"
+        description="Geef aan welke symptomen u heeft en hoe urgent deze op dit moment aanvoelen."
         validate={validateSymptoms}
       >
         <SymptomsStep values={values} setValues={setValues} />
@@ -70,7 +70,7 @@ function TriageWizard() {
 
       <Wizard.Step
         title="Review"
-        description="Double-check the summary and confirm follow-up consent."
+        description="Controleer de samenvatting en bevestig toestemming voor vervolg."
         validate={validateReview}
       >
         <ReviewStep values={values} setValues={setValues} />

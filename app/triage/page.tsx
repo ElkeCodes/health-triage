@@ -1,4 +1,4 @@
-import { TriageWizard } from "@/components/triage-wizard";
+import { TriageWizard } from "@/app/triage/_components/triage-wizard";
 
 export default function TriagePage() {
   return (

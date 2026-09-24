@@ -6,24 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
 import { cn } from "cn";
 import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
-
-type WizardValidationResult =
-  | boolean
-  | string
-  | void
-  | Promise<boolean | string | void>;
-
-type WizardValidationContext = {
-  stepIndex: number;
-  stepCount: number;
-  isFirstStep: boolean;
-  isLastStep: boolean;
-};
+import { useFormContext } from "react-hook-form";
 
 type WizardStepProps = {
   title: string;
   description?: string;
-  validate?: (context: WizardValidationContext) => WizardValidationResult;
+  fields?: string[];
   children: React.ReactNode;
 };
 
@@ -54,6 +42,9 @@ function WizardRoot({
   children,
   completionTitle = "All set",
   completionDescription = "Your responses have been saved and the wizard is complete.",
+  previousLabel = "Vorige",
+  nextLabel = "Volgende",
+  finishLabel = "Voltooien",
   initialStep = 0,
   onComplete,
 }: WizardProps) {
@@ -68,9 +59,9 @@ function WizardRoot({
     if (!steps.length) return 0;
     return Math.min(Math.max(initialStep, 0), steps.length - 1);
   });
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [isCompleting, setIsCompleting] = React.useState(false);
   const [isComplete, setIsComplete] = React.useState(false);
+  const form = useFormContext();
 
   const activeStepIndex = steps.length
     ? Math.min(Math.max(currentStep, 0), steps.length - 1)
@@ -85,21 +76,13 @@ function WizardRoot({
   async function handleNext() {
     if (!currentStepDefinition) return;
 
-    setErrorMessage(null);
+    const isStepValid = form
+      ? await form.trigger(
+          isLastStep ? undefined : currentStepDefinition.props.fields,
+        )
+      : true;
 
-    const validationResult = await currentStepDefinition.props.validate?.({
-      stepIndex: activeStepIndex,
-      stepCount: steps.length,
-      isFirstStep,
-      isLastStep,
-    });
-
-    if (validationResult !== undefined && validationResult !== true) {
-      setErrorMessage(
-        typeof validationResult === "string"
-          ? validationResult
-          : "Please complete this step before continuing.",
-      );
+    if (!isStepValid) {
       return;
     }
 
@@ -120,7 +103,6 @@ function WizardRoot({
   }
 
   function handlePrevious() {
-    setErrorMessage(null);
     setCurrentStep((previousStep) => Math.max(previousStep - 1, 0));
   }
 
@@ -158,13 +140,6 @@ function WizardRoot({
         </Alert>
       ) : (
         <>
-          {errorMessage ? (
-            <Alert variant="destructive">
-              <AlertTitle>Informatie onvolledig</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-          ) : null}
-
           {currentStepDefinition.props.description ? (
             <p className="text-sm text-muted-foreground">
               {currentStepDefinition.props.description}
@@ -194,12 +169,12 @@ function WizardRoot({
           disabled={isFirstStep || isCompleting}
         >
           <ChevronLeft />
-          Vorige
+          {previousLabel}
         </Button>
 
         {!isComplete ? (
           <Button type="button" onClick={handleNext} disabled={isCompleting}>
-            {isLastStep ? "Voltooien" : "Volgende"}
+            {isLastStep ? finishLabel : nextLabel}
             <ChevronRight />
           </Button>
         ) : null}
@@ -213,4 +188,4 @@ const Wizard = Object.assign(WizardRoot, {
 }) as WizardComponent;
 
 export { Wizard, WizardStep };
-export type { WizardProps, WizardStepProps, WizardValidationContext };
+export type { WizardProps, WizardStepProps };

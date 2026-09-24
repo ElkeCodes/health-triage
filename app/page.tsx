@@ -1,4 +1,4 @@
-import StartTriageWizard from "@/components/start-triage-wizard";
+import StartTriageWizard from "@/app/_components/start-triage-wizard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircleIcon } from "lucide-react";

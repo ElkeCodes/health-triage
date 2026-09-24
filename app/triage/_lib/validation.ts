@@ -20,9 +20,6 @@ const triageValidation = {
     validate: (value: Symptom[]) =>
       value.length > 0 || "Gelieve minstens één symptoom te selecteren.",
   },
-  urgency: {
-    required: "Selecteer de urgentie.",
-  },
 };
 
 export default triageValidation;

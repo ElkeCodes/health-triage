@@ -20,7 +20,6 @@ const initialValues: TriageFormValues = {
   age: "",
   gender: null,
   symptoms: [],
-  urgency: "moderate",
 };
 
 function TriageWizard({ symptomOptions }: TriageWizardProps) {

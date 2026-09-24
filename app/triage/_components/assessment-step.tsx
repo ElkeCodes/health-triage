@@ -11,6 +11,26 @@ import {
 } from "@/components/ui/card";
 import { GENERAL_PRACTICIONER, SPECIALITIES } from "../_lib/specialities";
 import { TriageFormValues } from "../_lib/triage-form-values";
+import {
+  getTriageUrgency,
+  getTriageUrgencyLabel,
+} from "../_lib/triage-urgency";
+import { cn } from "@/lib/utils";
+
+const urgencyStyles = {
+  routine: {
+    panel: "border-emerald-200 bg-emerald-50/80 text-emerald-950",
+    label: "text-emerald-700",
+  },
+  urgent: {
+    panel: "border-amber-200 bg-amber-50/80 text-amber-950",
+    label: "text-amber-700",
+  },
+  emergency: {
+    panel: "border-rose-200 bg-rose-50/80 text-rose-950",
+    label: "text-rose-700",
+  },
+} as const;
 
 function AssessmentStep() {
   const { control } = useFormContext<TriageFormValues>();
@@ -19,6 +39,11 @@ function AssessmentStep() {
     name: "symptoms",
     defaultValue: [],
   });
+  const urgency = React.useMemo(
+    () => getTriageUrgency(selectedSymptoms),
+    [selectedSymptoms],
+  );
+  const urgencyStyle = urgencyStyles[urgency];
   const suggestedSpeciality = React.useMemo(() => {
     const scoredSpecialities = SPECIALITIES.map((speciality, index) => {
       const matchedSymptoms = speciality.symptoms.filter((symptom) =>
@@ -49,7 +74,9 @@ function AssessmentStep() {
 
   return (
     <div className="grid gap-4">
-      <Card className="border-primary/20 bg-primary/5">
+      <Card
+        className={cn("border-primary/20 bg-primary/5", urgencyStyle.panel)}
+      >
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Stethoscope className="size-5 text-primary" />
@@ -93,11 +120,25 @@ function AssessmentStep() {
                 ))}
               </div>
             </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                Volgende stap
+            <div className={cn("rounded-xl border p-4", urgencyStyle.panel)}>
+              <p
+                className={cn(
+                  "text-xs uppercase tracking-wide",
+                  urgencyStyle.label,
+                )}
+              >
+                Triage
               </p>
-              <p className="mt-1 text-lg font-semibold">Plan een consult</p>
+              <p className="mt-1 text-lg font-semibold capitalize">
+                {getTriageUrgencyLabel(urgency)}
+              </p>
+              <p className="mt-1 text-sm opacity-90">
+                {urgency === "emergency"
+                  ? "Neem onmiddellijk contact op met de spoedhulp."
+                  : urgency === "urgent"
+                    ? "Plan zo snel mogelijk een consult."
+                    : "Een gewone afspraak is meestal voldoende."}
+              </p>
             </div>
           </div>
         </CardContent>

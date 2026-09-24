@@ -52,7 +52,13 @@ function SymptomsStep({
         control={control}
         name="symptoms"
         rules={triageValidation.symptoms}
-        render={({ field, fieldState }) => (
+        render={({ field, fieldState }) => {
+          const syncSymptoms = (nextSymptoms: Symptom[]) => {
+            field.onChange(nextSymptoms);
+            void trigger("symptoms");
+          };
+
+          return (
           <FieldSet className="grid gap-3">
             <FieldLegend variant="label">
               Welke symptomen ervaart u?
@@ -77,8 +83,7 @@ function SymptomsStep({
 
                 setSearchValue("");
                 setRecentSymptom(value);
-                field.onChange([...field.value, selectedSymptom]);
-                void trigger("symptoms");
+                syncSymptoms([...field.value, selectedSymptom]);
               }}
             >
               <ComboboxInput
@@ -132,15 +137,14 @@ function SymptomsStep({
                         const isChecked = Boolean(nextChecked);
 
                         if (isChecked) {
-                          field.onChange([...field.value, symptom]);
+                          syncSymptoms([...field.value, symptom]);
                         } else {
-                          field.onChange(
+                          syncSymptoms(
                             field.value.filter(
                               (current) => current.name !== symptom.name,
                             ),
                           );
                         }
-                        void trigger("symptoms");
                       }}
                     />
                     <FieldLabel htmlFor={id} className="font-normal">
@@ -152,7 +156,8 @@ function SymptomsStep({
             </div>
             <FieldError errors={[fieldState.error]} />
           </FieldSet>
-        )}
+          );
+        }}
       />
     </div>
   );

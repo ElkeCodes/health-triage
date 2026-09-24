@@ -7,10 +7,13 @@ import PatientDetailsStep from "./patient-details-step";
 import ReviewStep from "./review-step";
 import SymptomsStep from "./symptoms-step";
 import AssessmentStep from "./assessment-step";
-import type { TriageFormValues } from "@/app/triage/_lib/triage-form-values";
+import type {
+  Symptom,
+  TriageFormValues,
+} from "@/app/triage/_lib/triage-form-values";
 
 type TriageWizardProps = {
-  symptomOptions: string[];
+  symptomOptions: Symptom[];
 };
 
 const initialValues: TriageFormValues = {

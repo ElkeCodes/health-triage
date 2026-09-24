@@ -1,6 +1,5 @@
-"use client";
-
 import * as React from "react";
+import type { Symptom } from "../_lib/triage-form-values";
 import { Stethoscope } from "lucide-react";
 import { useFormContext, useWatch } from "react-hook-form";
 import {
@@ -22,8 +21,8 @@ function AssessmentStep() {
   });
   const suggestedSpeciality = React.useMemo(() => {
     const scoredSpecialities = SPECIALITIES.map((speciality, index) => {
-      const matchedSymptoms = speciality.symptomen.filter((symptom) =>
-        selectedSymptoms.includes(symptom),
+      const matchedSymptoms = speciality.symptoms.filter((symptom) =>
+        selectedSymptoms.some((selected) => selected.name === symptom.name),
       );
 
       return {
@@ -84,12 +83,12 @@ function AssessmentStep() {
                 {(suggestedSpeciality.matchedSymptoms.length
                   ? suggestedSpeciality.matchedSymptoms
                   : selectedSymptoms
-                ).map((symptom) => (
+                ).map((symptom: Symptom) => (
                   <span
-                    key={symptom}
+                    key={symptom.name}
                     className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
                   >
-                    {symptom}
+                    {symptom.name}
                   </span>
                 ))}
               </div>

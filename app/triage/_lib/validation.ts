@@ -1,3 +1,5 @@
+import type { Symptom } from "./triage-form-values";
+
 const triageValidation = {
   age: {
     required: "Gelieve een geldige leeftijd in te vullen.",
@@ -15,7 +17,7 @@ const triageValidation = {
     required: "Selecteer het geboortegeslacht.",
   },
   symptoms: {
-    validate: (value: string[]) =>
+    validate: (value: Symptom[]) =>
       value.length > 0 || "Gelieve minstens één symptoom te selecteren.",
   },
   urgency: {

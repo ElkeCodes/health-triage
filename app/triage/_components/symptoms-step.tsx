@@ -1,5 +1,5 @@
 import { useFormContext, Controller } from "react-hook-form";
-import { TriageFormValues } from "../_lib/triage-form-values";
+import type { Symptom, TriageFormValues } from "../_lib/triage-form-values";
 import triageValidation from "../_lib/validation";
 import {
   Field,
@@ -9,11 +9,6 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  RadioGroup,
-  RadioGroupItem,
-  RadioGroupItemContainer,
-} from "@/components/ui/radio-group";
 import {
   Combobox,
   ComboboxContent,
@@ -26,8 +21,8 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 type SymptomsStepProps = {
-  symptomOptions: string[];
-  mostPopularSymptoms: string[];
+  symptomOptions: Symptom[];
+  mostPopularSymptoms: Symptom[];
 };
 
 function SymptomsStep({
@@ -37,8 +32,19 @@ function SymptomsStep({
   const { control, trigger } = useFormContext<TriageFormValues>();
   const [searchValue, setSearchValue] = useState("");
   const [recentSymptom, setRecentSymptom] = useState<string | null>(null);
-  const filteredOptions = (options: string[], selected: string[]) =>
-    options.filter((option) => !selected.includes(option));
+  const filteredOptions = (options: Symptom[], selected: Symptom[]) => {
+    const query = searchValue.trim().toLowerCase();
+
+    return options.filter((option) => {
+      const matchesQuery =
+        !query || option.name.toLowerCase().includes(query);
+      const isSelected = selected.some(
+        (selectedSymptom) => selectedSymptom.name === option.name,
+      );
+
+      return matchesQuery && !isSelected;
+    });
+  };
 
   return (
     <div className="grid gap-4">
@@ -57,13 +63,21 @@ function SymptomsStep({
                 setSearchValue(value);
               }}
               onValueChange={(value: string | null) => {
-                if (!value || field.value.includes(value)) {
+                if (!value || field.value.some((symptom) => symptom.name === value)) {
+                  return;
+                }
+
+                const selectedSymptom = symptomOptions.find(
+                  (symptom) => symptom.name === value,
+                );
+
+                if (!selectedSymptom) {
                   return;
                 }
 
                 setSearchValue("");
                 setRecentSymptom(value);
-                field.onChange([...field.value, value]);
+                field.onChange([...field.value, selectedSymptom]);
                 void trigger("symptoms");
               }}
             >
@@ -74,10 +88,13 @@ function SymptomsStep({
               <ComboboxContent>
                 <ComboboxList>
                   {filteredOptions(symptomOptions, field.value).map((item) => (
-                    <ComboboxItem key={item} value={item}>
-                      {item}
+                    <ComboboxItem key={item.name} value={item.name}>
+                      {item.name}
                     </ComboboxItem>
-                  )) || <ComboboxEmpty>Geen symptomen gevonden</ComboboxEmpty>}
+                  ))}
+                  {!filteredOptions(symptomOptions, field.value).length ? (
+                    <ComboboxEmpty>Geen symptomen gevonden</ComboboxEmpty>
+                  ) : null}
                 </ComboboxList>
               </ComboboxContent>
             </Combobox>
@@ -85,16 +102,21 @@ function SymptomsStep({
               {[
                 ...field.value,
                 ...mostPopularSymptoms.filter(
-                  (symptom) => !field.value.includes(symptom),
+                  (symptom) =>
+                    !field.value.some(
+                      (selectedSymptom) => selectedSymptom.name === symptom.name,
+                    ),
                 ),
               ].map((symptom) => {
-                const id = `symptom-${symptom.toLowerCase()}`;
-                const checked = field.value.includes(symptom);
-                const isRecent = recentSymptom === symptom;
+                const id = `symptom-${symptom.name.toLowerCase().replaceAll(" ", "-")}`;
+                const checked = field.value.some(
+                  (selectedSymptom) => selectedSymptom.name === symptom.name,
+                );
+                const isRecent = recentSymptom === symptom.name;
 
                 return (
                   <Field
-                    key={symptom}
+                    key={symptom.name}
                     orientation="horizontal"
                     className={cn(
                       "items-center gap-3 rounded-lg border border-input px-3 py-2",
@@ -114,7 +136,7 @@ function SymptomsStep({
                         } else {
                           field.onChange(
                             field.value.filter(
-                              (current: string) => current !== symptom,
+                              (current) => current.name !== symptom.name,
                             ),
                           );
                         }
@@ -122,52 +144,12 @@ function SymptomsStep({
                       }}
                     />
                     <FieldLabel htmlFor={id} className="font-normal">
-                      {symptom}
+                      {symptom.name}
                     </FieldLabel>
                   </Field>
                 );
               })}
             </div>
-            <FieldError errors={[fieldState.error]} />
-          </FieldSet>
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="urgency"
-        rules={triageValidation.urgency}
-        render={({ field, fieldState }) => (
-          <FieldSet className="grid gap-2">
-            <FieldLegend variant="label">Urgentie</FieldLegend>
-            <RadioGroup
-              value={field.value}
-              onValueChange={(value) => {
-                field.onChange(value);
-                void trigger("urgency");
-              }}
-              className="grid gap-3"
-              aria-invalid={fieldState.invalid ? "true" : "false"}
-            >
-              <RadioGroupItemContainer>
-                <RadioGroupItem value="mild" id="urgency-mild" />
-                <FieldLabel htmlFor="urgency-mild" className="font-normal">
-                  Licht en stabiel
-                </FieldLabel>
-              </RadioGroupItemContainer>
-              <RadioGroupItemContainer>
-                <RadioGroupItem value="moderate" id="urgency-moderate" />
-                <FieldLabel htmlFor="urgency-moderate" className="font-normal">
-                  Matig en hinderlijk
-                </FieldLabel>
-              </RadioGroupItemContainer>
-              <RadioGroupItemContainer>
-                <RadioGroupItem value="severe" id="urgency-severe" />
-                <FieldLabel htmlFor="urgency-severe" className="font-normal">
-                  Ernstig of snel verslechterend
-                </FieldLabel>
-              </RadioGroupItemContainer>
-            </RadioGroup>
             <FieldError errors={[fieldState.error]} />
           </FieldSet>
         )}

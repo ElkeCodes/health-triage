@@ -1,5 +1,11 @@
 import { SPECIALITIES } from "./specialities";
+import type { Symptom } from "./triage-form-values";
 
-export const symptomOptions: string[] = [
-  ...new Set(SPECIALITIES.flatMap((speciality) => speciality.symptomen)),
-];
+export const symptomOptions: Symptom[] = Array.from(
+  new Map(
+    SPECIALITIES.flatMap((speciality) => speciality.symptoms).map((symptom) => [
+      symptom.name,
+      symptom,
+    ]),
+  ).values(),
+);

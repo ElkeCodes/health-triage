@@ -26,12 +26,10 @@ function ReviewStep() {
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">Symptomen</span>
           <span className="font-medium text-right">
-            {values.symptoms.length ? values.symptoms.join(", ") : "—"}
+            {values.symptoms.length
+              ? values.symptoms.map((symptom) => symptom.name).join(", ")
+              : "—"}
           </span>
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-muted-foreground">Urgentie</span>
-          <span className="font-medium capitalize">{values.urgency}</span>
         </div>
       </div>
     </div>

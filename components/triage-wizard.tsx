@@ -11,7 +11,7 @@ import {
 
 const initialValues: TriageFormValues = {
   age: "",
-  gender: undefined,
+  gender: null,
   symptoms: [],
   urgency: "moderate",
 };

@@ -2,7 +2,11 @@
 
 import type * as React from "react";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  RadioGroup,
+  RadioGroupItem,
+  RadioGroupItemContainer,
+} from "@/components/ui/radio-group";
 import {
   Combobox,
   ComboboxContent,
@@ -15,7 +19,7 @@ import { Field, FieldLabel, FieldLegend, FieldSet } from "./ui/field";
 
 type TriageFormValues = {
   age: string;
-  gender: "male" | "female" | undefined;
+  gender: "male" | "female" | null;
   symptoms: string[];
   urgency: "mild" | "moderate" | "severe";
 };
@@ -44,7 +48,7 @@ function PatientDetailsStep({ values, setValues }: TriageStepProps) {
       </Field>
 
       <FieldSet className="grid gap-2 md:col-span-2">
-        <FieldLegend>Geboortegeslacht</FieldLegend>
+        <FieldLegend variant="label">Geboortegeslacht</FieldLegend>
         <RadioGroup
           value={values.gender}
           onValueChange={(value) =>
@@ -53,16 +57,19 @@ function PatientDetailsStep({ values, setValues }: TriageStepProps) {
               gender: value as TriageFormValues["gender"],
             }))
           }
-          className="grid gap-3 sm:grid-cols-2"
         >
-          <FieldLabel className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
-            <RadioGroupItem value="male" />
-            <span>Man</span>
-          </FieldLabel>
-          <FieldLabel className="flex items-center gap-3 rounded-lg border border-input px-3 py-2">
-            <RadioGroupItem value="female" />
-            <span>Vrouw</span>
-          </FieldLabel>
+          <RadioGroupItemContainer>
+            <RadioGroupItem value="male" id="gender-male" />
+            <FieldLabel htmlFor="gender-male" className="font-normal">
+              Man
+            </FieldLabel>
+          </RadioGroupItemContainer>
+          <RadioGroupItemContainer>
+            <RadioGroupItem value="female" id="gender-female" />
+            <FieldLabel htmlFor="gender-female" className="font-normal">
+              Vrouw
+            </FieldLabel>
+          </RadioGroupItemContainer>
         </RadioGroup>
       </FieldSet>
     </div>
@@ -102,7 +109,7 @@ function SymptomsStep({ values, setValues }: TriageStepProps) {
       </Field>
 
       <FieldSet className="grid gap-2">
-        <FieldLegend>Urgentie</FieldLegend>
+        <FieldLegend variant="label">Urgentie</FieldLegend>
         <RadioGroup
           value={values.urgency}
           onValueChange={(value) =>
@@ -113,31 +120,22 @@ function SymptomsStep({ values, setValues }: TriageStepProps) {
           }
           className="grid gap-3"
         >
-          <Field
-            orientation="horizontal"
-            className="flex items-center gap-3 rounded-lg border border-input px-3 py-2"
-          >
+          <RadioGroupItemContainer>
             <RadioGroupItem value="mild" id="urgency-mild" />
             <FieldLabel htmlFor="urgency-mild">Licht en stabiel</FieldLabel>
-          </Field>
-          <Field
-            orientation="horizontal"
-            className="flex items-center gap-3 rounded-lg border border-input px-3 py-2"
-          >
+          </RadioGroupItemContainer>
+          <RadioGroupItemContainer>
             <RadioGroupItem value="moderate" id="urgency-moderate" />
             <FieldLabel htmlFor="urgency-moderate">
               Matig en hinderlijk
             </FieldLabel>
-          </Field>
-          <Field
-            orientation="horizontal"
-            className="flex items-center gap-3 rounded-lg border border-input px-3 py-2"
-          >
+          </RadioGroupItemContainer>
+          <RadioGroupItemContainer>
             <RadioGroupItem value="severe" id="urgency-severe" />
             <FieldLabel htmlFor="urgency-severe">
               Ernstig of snel verslechterend
             </FieldLabel>
-          </Field>
+          </RadioGroupItemContainer>
         </RadioGroup>
       </FieldSet>
     </div>

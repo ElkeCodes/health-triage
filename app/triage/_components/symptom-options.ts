@@ -1,0 +1,18 @@
+export const symptomOptions: string[] = [
+  "Gordelroos",
+  "Hoesten",
+  "Keelpijn",
+  "Diarree",
+  "Oorpijn",
+  "Koorts",
+  "Blaasontsteking",
+  "Hoofdpijn",
+  "Hersenschudding",
+  "Eczeem",
+  "Waterpokken",
+  "Buikpijn",
+  "Griep",
+  "Rugpijn",
+  "Keelontsteking",
+  "Duizeligheid",
+];

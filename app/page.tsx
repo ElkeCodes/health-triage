@@ -11,7 +11,7 @@ export default function Home() {
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
             Health triage
           </p>
-          <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
             Wij helpen u om de juiste zorg te krijgen.
           </h1>
         </div>

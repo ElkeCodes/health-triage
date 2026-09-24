@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
 import { cn } from "cn";
-import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
 type WizardStepProps = {
@@ -25,10 +25,11 @@ type WizardProps = {
   completionTitle?: string;
   completionDescription?: string;
   previousLabel?: string;
+  firstStepPreviousLabel?: string;
   nextLabel?: string;
   finishLabel?: string;
+  onCancel?: () => void;
   initialStep?: number;
-  onComplete?: () => void | Promise<void>;
 };
 
 type WizardStepElement = React.ReactElement<WizardStepProps, typeof WizardStep>;
@@ -40,13 +41,11 @@ type WizardComponent = React.FC<WizardProps> & {
 function WizardRoot({
   className,
   children,
-  completionTitle = "All set",
-  completionDescription = "Your responses have been saved and the wizard is complete.",
   previousLabel = "Vorige",
+  firstStepPreviousLabel = "Annuleren",
   nextLabel = "Volgende",
-  finishLabel = "Voltooien",
   initialStep = 0,
-  onComplete,
+  onCancel,
 }: WizardProps) {
   const steps = React.useMemo(() => {
     return React.Children.toArray(children).filter(
@@ -59,8 +58,6 @@ function WizardRoot({
     if (!steps.length) return 0;
     return Math.min(Math.max(initialStep, 0), steps.length - 1);
   });
-  const [isCompleting, setIsCompleting] = React.useState(false);
-  const [isComplete, setIsComplete] = React.useState(false);
   const form = useFormContext();
 
   const activeStepIndex = steps.length
@@ -86,23 +83,16 @@ function WizardRoot({
       return;
     }
 
-    if (isLastStep) {
-      try {
-        setIsCompleting(true);
-        await onComplete?.();
-        setIsComplete(true);
-      } finally {
-        setIsCompleting(false);
-      }
-      return;
-    }
-
     setCurrentStep((previousStep) =>
       Math.min(previousStep + 1, steps.length - 1),
     );
   }
 
   function handlePrevious() {
+    if (isFirstStep) {
+      onCancel?.();
+      return;
+    }
     setCurrentStep((previousStep) => Math.max(previousStep - 1, 0));
   }
 
@@ -127,54 +117,43 @@ function WizardRoot({
         <ProgressLabel>{`Stap ${activeStepIndex + 1} van de ${steps.length}`}</ProgressLabel>
       </Progress>
       <div className="max-w-2xl space-y-3">
-        <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
           {currentStepDefinition.props.title}
         </h1>
       </div>
 
-      {isComplete ? (
-        <Alert>
-          <CheckCircle2 />
-          <AlertTitle>{completionTitle}</AlertTitle>
-          <AlertDescription>{completionDescription}</AlertDescription>
-        </Alert>
-      ) : (
-        <>
-          {currentStepDefinition.props.description ? (
-            <p className="text-sm text-muted-foreground">
-              {currentStepDefinition.props.description}
-            </p>
-          ) : null}
+      {currentStepDefinition.props.description ? (
+        <p className="text-sm text-muted-foreground">
+          {currentStepDefinition.props.description}
+        </p>
+      ) : null}
 
-          <div className="space-y-6">
-            {steps.map((step, index) => (
-              <section
-                key={step.props.title}
-                hidden={index !== activeStepIndex}
-                aria-hidden={index !== activeStepIndex}
-                className={cn(index === activeStepIndex ? "block" : "hidden")}
-              >
-                {step.props.children}
-              </section>
-            ))}
-          </div>
-        </>
-      )}
+      <div className="space-y-6">
+        {steps.map((step, index) => (
+          <section
+            key={step.props.title}
+            hidden={index !== activeStepIndex}
+            aria-hidden={index !== activeStepIndex}
+            className={cn(index === activeStepIndex ? "block" : "hidden")}
+          >
+            {step.props.children}
+          </section>
+        ))}
+      </div>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 fixed bottom-0 left-0 right-0 bg-background p-4 border border-muted">
         <Button
           type="button"
           variant="outline"
           onClick={handlePrevious}
-          disabled={isFirstStep || isCompleting}
         >
           <ChevronLeft />
-          {previousLabel}
+          {isFirstStep ? firstStepPreviousLabel : previousLabel}
         </Button>
 
-        {!isComplete ? (
-          <Button type="button" onClick={handleNext} disabled={isCompleting}>
-            {isLastStep ? finishLabel : nextLabel}
+        {!isLastStep ? (
+          <Button type="button" onClick={handleNext}>
+            {nextLabel}
             <ChevronRight />
           </Button>
         ) : null}

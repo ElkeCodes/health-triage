@@ -1,14 +1,17 @@
 "use client";
 
-import * as React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { Wizard } from "@/components/wizard";
-import {
-  PatientDetailsStep,
-  ReviewStep,
-  SymptomsStep,
-  type TriageFormValues,
-} from "./triage-wizard-steps";
+import PatientDetailsStep from "./patient-details-step";
+import ReviewStep from "./review-step";
+import SymptomsStep from "./symptoms-step";
+import AssessmentStep from "./assessment-step";
+import type { TriageFormValues } from "@/app/triage/_lib/triage-form-values";
+
+type TriageWizardProps = {
+  symptomOptions: string[];
+};
 
 const initialValues: TriageFormValues = {
   age: "",
@@ -17,27 +20,18 @@ const initialValues: TriageFormValues = {
   urgency: "moderate",
 };
 
-function TriageWizard() {
-  const [submitted, setSubmitted] = React.useState(false);
+function TriageWizard({ symptomOptions }: TriageWizardProps) {
   const form = useForm<TriageFormValues>({
     defaultValues: initialValues,
     shouldUnregister: false,
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
-
-  if (submitted) {
-    return <p>Einde</p>;
-  }
+  const router = useRouter();
 
   return (
     <FormProvider {...form}>
-      <Wizard
-        completionTitle="Intake vastgelegd"
-        completionDescription="De wizard is voltooid en de intakegegevens zijn klaar voor de volgende fase."
-        finishLabel="Verstuur intake"
-        onComplete={() => setSubmitted(true)}
-      >
+      <Wizard onCancel={() => router.push("/")}>
         <Wizard.Step
           title="Patiëntgegevens"
           description="Begin met de basisinformatie zodat het zorgteam weet wie ze helpen."
@@ -47,18 +41,28 @@ function TriageWizard() {
         </Wizard.Step>
 
         <Wizard.Step
-          title="Welke symptomen heeft u?"
-          description="Geef aan welke symptomen u heeft en hoe urgent deze op dit moment aanvoelen."
+          title="Welke symptomen ervaart u?"
+          description="Geef aan welke symptomen u ervaart en hoe urgent deze op dit moment aanvoelen."
           fields={["symptoms", "urgency"]}
         >
-          <SymptomsStep />
+          <SymptomsStep
+            symptomOptions={symptomOptions}
+            mostPopularSymptoms={symptomOptions.slice(0, 5)}
+          />
         </Wizard.Step>
 
         <Wizard.Step
-          title="Review"
-          description="Controleer de samenvatting en bevestig toestemming voor vervolg."
+          title="Overzicht"
+          description="Controleer de ingevulde data en verstuur deze naar het zorgteam"
         >
           <ReviewStep />
+        </Wizard.Step>
+
+        <Wizard.Step
+          title="Voltooid"
+          description="U heeft alle stappen van de intake doorlopen."
+        >
+          <AssessmentStep />
         </Wizard.Step>
       </Wizard>
     </FormProvider>

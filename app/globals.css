@@ -128,3 +128,32 @@
     @apply font-sans;
   }
 }
+
+@layer utilities {
+  @keyframes symptom-highlight-fade {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  .animate-highlight {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .animate-highlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: color-mix(in oklab, var(--primary) 5%, transparent);
+    pointer-events: none;
+    animation: symptom-highlight-fade 2s ease-out forwards;
+  }
+}

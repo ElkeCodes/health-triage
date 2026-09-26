@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { GENERAL_PRACTICIONER, SPECIALITIES } from "../_lib/specialities";
+import { suggestSpeciality } from "../_lib/suggest-speciality";
 import { TriageFormValues } from "../_lib/triage-form-values";
 import {
   getTriageUrgency,
@@ -39,6 +39,7 @@ function AssessmentStep() {
   const { control } = useFormContext<TriageFormValues>();
   const values = useWatch({ control }) as TriageFormValues;
 
+  const triageSaved = React.useRef(false);
   React.useEffect(() => {
     const formData = new FormData();
 
@@ -48,8 +49,15 @@ function AssessmentStep() {
       "symptoms",
       values.symptoms.map((symptom) => symptom.name).join(","),
     );
+    formData.set("urgency", getTriageUrgency(values.symptoms));
+    formData.set("pathway", suggestSpeciality(values.symptoms).speciality.naam);
+    formData.set("next", getTriageUrgency(values.symptoms) ?? ""); // temp solution
+    formData.set("consultationType", getTriageUrgency(values.symptoms) ?? ""); // temp solution
 
-    void createTriage(formData);
+    if (!triageSaved.current) {
+      void createTriage(formData);
+      triageSaved.current = true;
+    }
   }, [values]);
 
   const urgency = React.useMemo(
@@ -58,31 +66,7 @@ function AssessmentStep() {
   );
   const urgencyStyle = urgencyStyles[urgency];
   const suggestedSpeciality = React.useMemo(() => {
-    const scoredSpecialities = SPECIALITIES.map((speciality, index) => {
-      const matchedSymptoms = speciality.symptoms.filter((symptom) =>
-        values.symptoms.some((selected) => selected.name === symptom.name),
-      );
-
-      return {
-        speciality,
-        matchedSymptoms,
-        score: matchedSymptoms.length,
-        index,
-      };
-    }).filter(({ score }) => score > 0);
-
-    if (scoredSpecialities.length) {
-      return scoredSpecialities.sort(
-        (left, right) => right.score - left.score || left.index - right.index,
-      )[0]!;
-    }
-
-    return {
-      speciality: GENERAL_PRACTICIONER,
-      matchedSymptoms: [],
-      score: 0,
-      index: -1,
-    };
+    return suggestSpeciality(values.symptoms);
   }, [values.symptoms]);
 
   return (

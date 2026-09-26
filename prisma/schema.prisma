@@ -8,9 +8,13 @@ datasource db {
 }
 
 model Triage {
-  id        Int      @id @default(autoincrement())
-  age       Int
-  gender    String
-  symptoms  String[] @default([])
-  createdAt DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  age              Int
+  gender           String
+  symptoms         String[] @default([])
+  urgency          String
+  pathway          String
+  next             String
+  consultationType String
+  createdAt        DateTime @default(now())
 }

@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Triage {
+  id        Int      @id @default(autoincrement())
+  age       Int
+  gender    String
+  symptoms  String[] @default([])
+  createdAt DateTime @default(now())
+}

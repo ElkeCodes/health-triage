@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import type { Symptom } from "../_lib/triage-form-values";
 import { Stethoscope } from "lucide-react";
@@ -16,6 +18,7 @@ import {
   getTriageUrgencyLabel,
 } from "../_lib/triage-urgency";
 import { cn } from "@/lib/utils";
+import { createTriage } from "../_lib/actions";
 
 const urgencyStyles = {
   routine: {
@@ -34,20 +37,30 @@ const urgencyStyles = {
 
 function AssessmentStep() {
   const { control } = useFormContext<TriageFormValues>();
-  const selectedSymptoms = useWatch({
-    control,
-    name: "symptoms",
-    defaultValue: [],
-  });
+  const values = useWatch({ control }) as TriageFormValues;
+
+  React.useEffect(() => {
+    const formData = new FormData();
+
+    formData.set("age", values.age);
+    formData.set("gender", values.gender ?? "");
+    formData.set(
+      "symptoms",
+      values.symptoms.map((symptom) => symptom.name).join(","),
+    );
+
+    void createTriage(formData);
+  }, [values]);
+
   const urgency = React.useMemo(
-    () => getTriageUrgency(selectedSymptoms),
-    [selectedSymptoms],
+    () => getTriageUrgency(values.symptoms),
+    [values.symptoms],
   );
   const urgencyStyle = urgencyStyles[urgency];
   const suggestedSpeciality = React.useMemo(() => {
     const scoredSpecialities = SPECIALITIES.map((speciality, index) => {
       const matchedSymptoms = speciality.symptoms.filter((symptom) =>
-        selectedSymptoms.some((selected) => selected.name === symptom.name),
+        values.symptoms.some((selected) => selected.name === symptom.name),
       );
 
       return {
@@ -70,13 +83,11 @@ function AssessmentStep() {
       score: 0,
       index: -1,
     };
-  }, [selectedSymptoms]);
+  }, [values.symptoms]);
 
   return (
     <div className="grid gap-4">
-      <Card
-        className={cn("border-primary/20 bg-primary/5", urgencyStyle.panel)}
-      >
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Stethoscope className="size-5 text-primary" />
@@ -103,13 +114,13 @@ function AssessmentStep() {
               </p>
               <p className="mt-1 text-lg font-semibold">
                 {suggestedSpeciality
-                  ? `${suggestedSpeciality.score}/${selectedSymptoms.length || 0} symptomen`
+                  ? `${suggestedSpeciality.score}/${values.symptoms.length || 0} symptomen`
                   : "0 symptomen"}
               </p>
               <div className="flex flex-wrap gap-2 mt-1">
                 {(suggestedSpeciality.matchedSymptoms.length
                   ? suggestedSpeciality.matchedSymptoms
-                  : selectedSymptoms
+                  : values.symptoms
                 ).map((symptom: Symptom) => (
                   <span
                     key={symptom.name}

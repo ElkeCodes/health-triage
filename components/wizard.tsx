@@ -4,7 +4,6 @@ import * as React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
-import { cn } from "cn";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
@@ -129,16 +128,9 @@ function WizardRoot({
       ) : null}
 
       <div className="space-y-6">
-        {steps.map((step, index) => (
-          <section
-            key={step.props.title}
-            hidden={index !== activeStepIndex}
-            aria-hidden={index !== activeStepIndex}
-            className={cn(index === activeStepIndex ? "block" : "hidden")}
-          >
-            {step.props.children}
-          </section>
-        ))}
+        <section key={currentStepDefinition.props.title} className="block">
+          {currentStepDefinition.props.children}
+        </section>
       </div>
 
       <div className="flex items-center justify-between gap-3 fixed bottom-0 left-0 right-0 bg-background p-4 border border-muted">

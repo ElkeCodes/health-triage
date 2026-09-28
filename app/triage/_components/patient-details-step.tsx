@@ -23,7 +23,7 @@ export default function PatientDetailsStep() {
   } = useFormContext<TriageFormValues>();
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="flex flex-col gap-4">
       <Field className="grid gap-2">
         <FieldLabel htmlFor="age">Leeftijd</FieldLabel>
         <Input

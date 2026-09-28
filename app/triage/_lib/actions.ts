@@ -7,11 +7,11 @@ import {
   getNextStep,
   getConsultationType,
 } from "./triage-urgency";
-import type { CreateTriageInput } from "./triage-schema";
-import { createTriageInputSchema } from "./triage-schema";
+import type { TriagePayload } from "./triage-schema";
+import { triagePayloadSchema } from "./triage-schema";
 
-export async function createTriage(input: CreateTriageInput) {
-  const values = createTriageInputSchema.parse(input);
+export async function createTriage(input: TriagePayload) {
+  const values = triagePayloadSchema.parse(input);
 
   const urgency = getTriageUrgency(values.symptoms);
   const suggestedSpeciality = suggestSpeciality(values.symptoms);

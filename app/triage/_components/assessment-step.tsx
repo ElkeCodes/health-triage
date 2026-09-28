@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Stethoscope } from "lucide-react";
 import { useFormContext, useWatch } from "react-hook-form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -18,7 +19,6 @@ import {
   getTriageUrgencyLabel,
 } from "../_lib/triage-urgency";
 import { cn } from "@/lib/utils";
-import { createTriage } from "../_lib/actions";
 
 const urgencyStyles = {
   routine: {
@@ -36,24 +36,15 @@ const urgencyStyles = {
 } as const;
 
 function AssessmentStep() {
-  const { control } = useFormContext<TriageFormValues>();
+  const {
+    control,
+    formState: { isSubmitSuccessful },
+  } = useFormContext<TriageFormValues>();
   const values = useWatch({ control }) as TriageFormValues;
   const urgency = React.useMemo(
     () => getTriageUrgency(values.symptoms),
     [values.symptoms],
   );
-
-  const triageSaved = React.useRef(false);
-  React.useEffect(() => {
-    if (!triageSaved.current) {
-      void createTriage({
-        age: values.age,
-        gender: values.gender!,
-        symptoms: values.symptoms,
-      });
-      triageSaved.current = true;
-    }
-  }, [values]);
   const urgencyStyle = urgencyStyles[urgency];
   const suggestedSpeciality = React.useMemo(() => {
     return suggestSpeciality(values.symptoms);
@@ -73,7 +64,7 @@ function AssessmentStep() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <div className="grid gap-4 rounded-xl bg-background/80 p-4 ring-1 ring-border/60 sm:grid-cols-3">
+          <div className="grid gap-4 rounded-xl bg-background/80 p-4 ring-1 ring-border/60 sm:grid-cols-2">
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 Aanbevolen
@@ -99,6 +90,14 @@ function AssessmentStep() {
           </div>
         </CardContent>
       </Card>
+      {isSubmitSuccessful ? (
+        <Alert className="border-emerald-200 bg-emerald-50 text-emerald-950">
+          <AlertTitle>Triage verstuurd</AlertTitle>
+          <AlertDescription>
+            De intake is succesvol opgeslagen en doorgestuurd naar het team.
+          </AlertDescription>
+        </Alert>
+      ) : null}
     </div>
   );
 }

@@ -24,7 +24,7 @@ type WizardProps = {
   previousLabel?: string;
   firstStepPreviousLabel?: string;
   nextLabel?: string;
-  closeLabel?: string;
+  finishLabel?: string;
   onCancel?: () => void;
   onClose?: () => void;
   initialStep?: number;
@@ -42,10 +42,9 @@ function WizardRoot({
   previousLabel = "Vorige",
   firstStepPreviousLabel = "Annuleren",
   nextLabel = "Volgende",
-  closeLabel = "Sluiten",
+  finishLabel = "Versturen",
   initialStep = 0,
   onCancel,
-  onClose,
 }: WizardProps) {
   const steps = React.useMemo(() => {
     return React.Children.toArray(children).filter(
@@ -58,7 +57,7 @@ function WizardRoot({
     if (!steps.length) return 0;
     return Math.min(Math.max(initialStep, 0), steps.length - 1);
   });
-  const form = useFormContext();
+  const { formState, trigger } = useFormContext();
 
   const activeStepIndex = steps.length
     ? Math.min(Math.max(currentStep, 0), steps.length - 1)
@@ -73,11 +72,9 @@ function WizardRoot({
   async function handleNext() {
     if (!currentStepDefinition) return;
 
-    const isStepValid = form
-      ? await form.trigger(
-          isLastStep ? undefined : currentStepDefinition.props.fields,
-        )
-      : true;
+    const isStepValid = await trigger(
+      isLastStep ? undefined : currentStepDefinition.props.fields,
+    );
 
     if (!isStepValid) {
       return;
@@ -109,7 +106,7 @@ function WizardRoot({
   }
 
   return (
-    <>
+    <div className="space-y-4">
       <Progress
         value={progress}
         aria-label={`Stap ${activeStepIndex + 1} van de ${steps.length}`}
@@ -141,8 +138,15 @@ function WizardRoot({
         </Button>
 
         {isLastStep ? (
-          <Button type="button" onClick={onClose}>
-            {closeLabel}
+          <Button
+            type="submit"
+            disabled={formState.isSubmitting || formState.isSubmitSuccessful}
+          >
+            {formState.isSubmitting
+              ? "Versturen..."
+              : formState.isSubmitSuccessful
+                ? "Verstuurd"
+                : finishLabel}
             <CircleCheck />
           </Button>
         ) : (
@@ -152,7 +156,7 @@ function WizardRoot({
           </Button>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

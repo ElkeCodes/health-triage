@@ -5,7 +5,7 @@ const symptomSchema = z.object({
   urgency: z.number().int().min(1).max(3),
 });
 
-export const createTriageInputSchema = z.object({
+export const triageFormSchema = z.object({
   age: z
     .string()
     .trim()
@@ -35,4 +35,8 @@ export const createTriageInputSchema = z.object({
     .min(1, "Gelieve minstens één symptoom te selecteren."),
 });
 
-export type CreateTriageInput = z.infer<typeof createTriageInputSchema>;
+export const triagePayloadSchema = triageFormSchema.extend({
+  age: z.number().int().min(0),
+});
+
+export type TriagePayload = z.infer<typeof triagePayloadSchema>;

@@ -3,7 +3,7 @@ import type { TriageFormValues } from "../_models/triage-form-values.type";
 
 function ReviewStep() {
   const { control } = useFormContext<TriageFormValues>();
-  const values = useWatch({ control }) as TriageFormValues;
+  const values = useWatch<TriageFormValues>({ control });
 
   const genderLabel =
     values.gender === "male"
@@ -26,7 +26,7 @@ function ReviewStep() {
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">Symptomen</span>
           <span className="font-medium text-right">
-            {values.symptoms.length
+            {values.symptoms?.length
               ? values.symptoms.map((symptom) => symptom.name).join(", ")
               : "—"}
           </span>

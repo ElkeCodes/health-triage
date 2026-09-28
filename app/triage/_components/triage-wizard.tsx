@@ -25,6 +25,9 @@ const initialValues: TriageFormValues = {
   symptoms: [],
 };
 
+const patientDetailsFields = ["age", "gender"] as const satisfies ReadonlyArray<keyof TriageFormValues>;
+const symptomFields = ["symptoms"] as const satisfies ReadonlyArray<keyof TriageFormValues>;
+
 function TriageWizard({
   symptomOptions,
   mostPopularSymptoms,
@@ -52,7 +55,7 @@ function TriageWizard({
           <Wizard.Step
             title="Patiëntgegevens"
             description="Begin met de basisinformatie zodat het zorgteam weet wie ze helpen."
-            fields={["age", "gender"]}
+            fields={patientDetailsFields}
           >
             <PatientDetailsStep />
           </Wizard.Step>
@@ -60,7 +63,7 @@ function TriageWizard({
           <Wizard.Step
             title="Welke symptomen ervaart u?"
             description="Geef aan welke symptomen u ervaart en hoe urgent deze op dit moment aanvoelen."
-            fields={["symptoms", "urgency"]}
+            fields={symptomFields}
           >
             <SymptomsStep
               symptomOptions={symptomOptions}

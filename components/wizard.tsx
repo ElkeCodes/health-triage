@@ -11,7 +11,7 @@ import { useScrollToTop } from "@/lib/hooks/use-scroll-to-top";
 type WizardStepProps = {
   title: string;
   description?: string;
-  fields?: string[];
+  fields?: readonly string[];
   children: React.ReactNode;
 };
 
@@ -27,7 +27,6 @@ type WizardProps = {
   nextLabel?: string;
   finishLabel?: string;
   onCancel?: () => void;
-  onClose?: () => void;
   initialStep?: number;
 };
 

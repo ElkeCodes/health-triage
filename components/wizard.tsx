@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
 import { ChevronLeft, ChevronRight, CircleCheck } from "lucide-react";
 import { useFormContext } from "react-hook-form";
+import { useScrollToTop } from "@/lib/hooks/use-scroll-to-top";
 
 type WizardStepProps = {
   title: string;
@@ -58,16 +59,18 @@ function WizardRoot({
     return Math.min(Math.max(initialStep, 0), steps.length - 1);
   });
   const { formState, trigger } = useFormContext();
-
+  
   const activeStepIndex = steps.length
-    ? Math.min(Math.max(currentStep, 0), steps.length - 1)
-    : 0;
+  ? Math.min(Math.max(currentStep, 0), steps.length - 1)
+  : 0;
   const currentStepDefinition = steps[activeStepIndex];
   const progress = steps.length
-    ? ((activeStepIndex + 1) / steps.length) * 100
-    : 0;
+  ? ((activeStepIndex + 1) / steps.length) * 100
+  : 0;
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
+
+  useScrollToTop(activeStepIndex);
 
   async function handleNext() {
     if (!currentStepDefinition) return;
@@ -90,6 +93,7 @@ function WizardRoot({
       onCancel?.();
       return;
     }
+
     setCurrentStep((previousStep) => Math.max(previousStep - 1, 0));
   }
 
@@ -113,6 +117,7 @@ function WizardRoot({
       >
         <ProgressLabel>{`Stap ${activeStepIndex + 1} van de ${steps.length}`}</ProgressLabel>
       </Progress>
+
       <div className="max-w-2xl space-y-3">
         <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
           {currentStepDefinition.props.title}

@@ -26,3 +26,19 @@ export function getTriageUrgencyLabel(urgency: TriageUrgency) {
       ? "Urgent"
       : "Routine";
 }
+
+export function getNextStep(urgency: TriageUrgency) {
+  return urgency === "emergency"
+    ? "Neem onmiddellijk contact op met de spoedhulp."
+    : urgency === "urgent"
+      ? "Plan zo snel mogelijk een consult."
+      : "Een gewone afspraak is meestal voldoende.";
+}
+
+export function getConsultationType(urgency: TriageUrgency) {
+  return urgency === "emergency"
+    ? "Spoedconsult"
+    : urgency === "urgent"
+      ? "Versneld consult"
+      : "Regulier consult";
+}

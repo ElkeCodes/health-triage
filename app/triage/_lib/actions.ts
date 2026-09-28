@@ -1,20 +1,30 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import prisma from "@/lib/database";
+import { suggestSpeciality } from "./suggest-speciality";
+import {
+  getTriageUrgency,
+  getNextStep,
+  getConsultationType,
+} from "./triage-urgency";
+import type { CreateTriageInput } from "./triage-schema";
+import { createTriageInputSchema } from "./triage-schema";
 
-export async function createTriage(formData: FormData) {
+export async function createTriage(input: CreateTriageInput) {
+  const values = createTriageInputSchema.parse(input);
+
+  const urgency = getTriageUrgency(values.symptoms);
+  const suggestedSpeciality = suggestSpeciality(values.symptoms);
+
   await prisma.triage.create({
     data: {
-      age: Number(formData.get("age")),
-      gender: String(formData.get("gender")),
-      symptoms: String(formData.get("symptoms")).split(","),
-      urgency: String(formData.get("urgency")),
-      pathway: String(formData.get("pathway")),
-      next: String(formData.get("next")),
-      consultationType: String(formData.get("consultationType")),
+      age: values.age,
+      gender: values.gender,
+      symptoms: values.symptoms.map((symptom) => symptom.name),
+      urgency,
+      pathway: suggestedSpeciality.speciality.naam,
+      next: getNextStep(urgency),
+      consultationType: getConsultationType(urgency),
     },
   });
-
-  //   revalidatePath("/posts");
 }

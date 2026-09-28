@@ -1,6 +1,5 @@
 import { useFormContext, Controller } from "react-hook-form";
 import { TriageFormValues } from "../_lib/triage-form-values";
-import triageValidation from "../_lib/validation";
 import {
   Field,
   FieldError,
@@ -34,7 +33,6 @@ export default function PatientDetailsStep() {
           placeholder="34"
           aria-invalid={errors.age ? "true" : "false"}
           {...register("age", {
-            ...triageValidation.age,
             onChange: () => {
               void trigger("age");
             },
@@ -46,7 +44,6 @@ export default function PatientDetailsStep() {
       <Controller
         control={control}
         name="gender"
-        rules={triageValidation.gender}
         render={({ field, fieldState }) => (
           <FieldSet className="grid gap-2 md:col-span-2">
             <FieldLegend variant="label">Geboortegeslacht</FieldLegend>

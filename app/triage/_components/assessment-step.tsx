@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import type { Symptom } from "../_lib/triage-form-values";
 import { Stethoscope } from "lucide-react";
 import { useFormContext, useWatch } from "react-hook-form";
 import {
@@ -14,6 +13,7 @@ import {
 import { suggestSpeciality } from "../_lib/suggest-speciality";
 import { TriageFormValues } from "../_lib/triage-form-values";
 import {
+  getNextStep,
   getTriageUrgency,
   getTriageUrgencyLabel,
 } from "../_lib/triage-urgency";
@@ -38,32 +38,22 @@ const urgencyStyles = {
 function AssessmentStep() {
   const { control } = useFormContext<TriageFormValues>();
   const values = useWatch({ control }) as TriageFormValues;
-
-  const triageSaved = React.useRef(false);
-  React.useEffect(() => {
-    const formData = new FormData();
-
-    formData.set("age", values.age);
-    formData.set("gender", values.gender ?? "");
-    formData.set(
-      "symptoms",
-      values.symptoms.map((symptom) => symptom.name).join(","),
-    );
-    formData.set("urgency", getTriageUrgency(values.symptoms));
-    formData.set("pathway", suggestSpeciality(values.symptoms).speciality.naam);
-    formData.set("next", getTriageUrgency(values.symptoms) ?? ""); // temp solution
-    formData.set("consultationType", getTriageUrgency(values.symptoms) ?? ""); // temp solution
-
-    if (!triageSaved.current) {
-      void createTriage(formData);
-      triageSaved.current = true;
-    }
-  }, [values]);
-
   const urgency = React.useMemo(
     () => getTriageUrgency(values.symptoms),
     [values.symptoms],
   );
+
+  const triageSaved = React.useRef(false);
+  React.useEffect(() => {
+    if (!triageSaved.current) {
+      void createTriage({
+        age: values.age,
+        gender: values.gender!,
+        symptoms: values.symptoms,
+      });
+      triageSaved.current = true;
+    }
+  }, [values]);
   const urgencyStyle = urgencyStyles[urgency];
   const suggestedSpeciality = React.useMemo(() => {
     return suggestSpeciality(values.symptoms);
@@ -104,13 +94,7 @@ function AssessmentStep() {
               <p className="mt-1 text-lg font-semibold capitalize">
                 {getTriageUrgencyLabel(urgency)}
               </p>
-              <p className="mt-1 text-sm opacity-90">
-                {urgency === "emergency"
-                  ? "Neem onmiddellijk contact op met de spoedhulp."
-                  : urgency === "urgent"
-                    ? "Plan zo snel mogelijk een consult."
-                    : "Een gewone afspraak is meestal voldoende."}
-              </p>
+              <p className="mt-1 text-sm opacity-90">{getNextStep(urgency)}</p>
             </div>
           </div>
         </CardContent>

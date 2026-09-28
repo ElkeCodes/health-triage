@@ -1,6 +1,5 @@
 import { useFormContext, Controller } from "react-hook-form";
 import type { Symptom, TriageFormValues } from "../_lib/triage-form-values";
-import triageValidation from "../_lib/validation";
 import {
   Field,
   FieldError,
@@ -50,7 +49,6 @@ function SymptomsStep({
       <Controller
         control={control}
         name="symptoms"
-        rules={triageValidation.symptoms}
         render={({ field, fieldState }) => {
           const syncSymptoms = (nextSymptoms: Symptom[]) => {
             field.onChange(nextSymptoms);

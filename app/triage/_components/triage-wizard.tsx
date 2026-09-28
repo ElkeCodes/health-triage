@@ -2,11 +2,14 @@
 
 import { FormProvider, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Wizard } from "@/components/wizard";
 import PatientDetailsStep from "./patient-details-step";
 import ReviewStep from "./review-step";
 import SymptomsStep from "./symptoms-step";
 import AssessmentStep from "./assessment-step";
+import { createTriageInputSchema } from "../_lib/triage-schema";
 import type {
   Symptom,
   TriageFormValues,
@@ -27,11 +30,16 @@ function TriageWizard({
   symptomOptions,
   mostPopularSymptoms,
 }: TriageWizardProps) {
-  const form = useForm<TriageFormValues>({
+  const form = useForm<
+    z.input<typeof createTriageInputSchema>,
+    undefined,
+    z.output<typeof createTriageInputSchema>
+  >({
     defaultValues: initialValues,
     shouldUnregister: false,
     mode: "onSubmit",
     reValidateMode: "onChange",
+    resolver: zodResolver(createTriageInputSchema),
   });
   const router = useRouter();
 

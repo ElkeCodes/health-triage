@@ -8,4 +8,14 @@ export const symptomOptions: Symptom[] = Array.from(
       symptom,
     ]),
   ).values(),
-);
+).sort((a, b) => a.name.localeCompare(b.name));
+
+export const mostPopularSymptoms: Symptom[] = [
+  symptomOptions.find((symptom) => symptom.name === "Buikpijn"),
+  symptomOptions.find(
+    (symptom) => symptom.name === "Hevige of plotselinge hoofdpijn",
+  ),
+  symptomOptions.find((symptom) => symptom.name === "Keelpijn"),
+  symptomOptions.find((symptom) => symptom.name === "Koorts"),
+  symptomOptions.find((symptom) => symptom.name === "Verkoudheid"),
+].filter(Boolean) as Symptom[];

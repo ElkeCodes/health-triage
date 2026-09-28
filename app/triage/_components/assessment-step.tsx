@@ -92,29 +92,6 @@ function AssessmentStep() {
                 {suggestedSpeciality.speciality.naam}
               </p>
             </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                Match
-              </p>
-              <p className="mt-1 text-lg font-semibold">
-                {suggestedSpeciality
-                  ? `${suggestedSpeciality.score}/${values.symptoms.length || 0} symptomen`
-                  : "0 symptomen"}
-              </p>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {(suggestedSpeciality.matchedSymptoms.length
-                  ? suggestedSpeciality.matchedSymptoms
-                  : values.symptoms
-                ).map((symptom: Symptom) => (
-                  <span
-                    key={symptom.name}
-                    className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
-                  >
-                    {symptom.name}
-                  </span>
-                ))}
-              </div>
-            </div>
             <div className={cn("rounded-xl border p-4", urgencyStyle.panel)}>
               <p
                 className={cn(

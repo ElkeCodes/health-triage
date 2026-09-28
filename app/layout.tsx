@@ -35,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <div className="min-h-screen bg-background">
-          <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 py-12 sm:px-8 lg:px-12">
+          <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 px-6 py-6 sm:px-8 lg:px-12">
             {children}
           </main>
         </div>

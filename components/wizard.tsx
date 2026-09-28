@@ -4,7 +4,7 @@ import * as React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleCheck } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
 type WizardStepProps = {
@@ -21,13 +21,12 @@ function WizardStep({ children }: WizardStepProps) {
 type WizardProps = {
   className?: string;
   children: React.ReactNode;
-  completionTitle?: string;
-  completionDescription?: string;
   previousLabel?: string;
   firstStepPreviousLabel?: string;
   nextLabel?: string;
-  finishLabel?: string;
+  closeLabel?: string;
   onCancel?: () => void;
+  onClose?: () => void;
   initialStep?: number;
 };
 
@@ -43,8 +42,10 @@ function WizardRoot({
   previousLabel = "Vorige",
   firstStepPreviousLabel = "Annuleren",
   nextLabel = "Volgende",
+  closeLabel = "Sluiten",
   initialStep = 0,
   onCancel,
+  onClose,
 }: WizardProps) {
   const steps = React.useMemo(() => {
     return React.Children.toArray(children).filter(
@@ -127,28 +128,29 @@ function WizardRoot({
         </p>
       ) : null}
 
-      <div className="space-y-6">
+      <div className="space-y-6 mb-12">
         <section key={currentStepDefinition.props.title} className="block">
           {currentStepDefinition.props.children}
         </section>
       </div>
 
       <div className="flex items-center justify-between gap-3 fixed bottom-0 left-0 right-0 bg-background p-4 border border-muted">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handlePrevious}
-        >
+        <Button type="button" variant="outline" onClick={handlePrevious}>
           <ChevronLeft />
           {isFirstStep ? firstStepPreviousLabel : previousLabel}
         </Button>
 
-        {!isLastStep ? (
+        {isLastStep ? (
+          <Button type="button" onClick={onClose}>
+            {closeLabel}
+            <CircleCheck />
+          </Button>
+        ) : (
           <Button type="button" onClick={handleNext}>
             {nextLabel}
             <ChevronRight />
           </Button>
-        ) : null}
+        )}
       </div>
     </>
   );

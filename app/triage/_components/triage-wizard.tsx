@@ -14,6 +14,7 @@ import type {
 
 type TriageWizardProps = {
   symptomOptions: Symptom[];
+  mostPopularSymptoms: Symptom[];
 };
 
 const initialValues: TriageFormValues = {
@@ -22,7 +23,10 @@ const initialValues: TriageFormValues = {
   symptoms: [],
 };
 
-function TriageWizard({ symptomOptions }: TriageWizardProps) {
+function TriageWizard({
+  symptomOptions,
+  mostPopularSymptoms,
+}: TriageWizardProps) {
   const form = useForm<TriageFormValues>({
     defaultValues: initialValues,
     shouldUnregister: false,
@@ -33,7 +37,10 @@ function TriageWizard({ symptomOptions }: TriageWizardProps) {
 
   return (
     <FormProvider {...form}>
-      <Wizard onCancel={() => router.push("/")}>
+      <Wizard
+        onCancel={() => router.push("/")}
+        onClose={() => router.push("/")}
+      >
         <Wizard.Step
           title="Patiëntgegevens"
           description="Begin met de basisinformatie zodat het zorgteam weet wie ze helpen."
@@ -49,7 +56,7 @@ function TriageWizard({ symptomOptions }: TriageWizardProps) {
         >
           <SymptomsStep
             symptomOptions={symptomOptions}
-            mostPopularSymptoms={symptomOptions.slice(0, 5)}
+            mostPopularSymptoms={mostPopularSymptoms}
           />
         </Wizard.Step>
 
@@ -61,7 +68,7 @@ function TriageWizard({ symptomOptions }: TriageWizardProps) {
         </Wizard.Step>
 
         <Wizard.Step
-          title="Voltooid"
+          title="Hoe gaat het verder?"
           description="U heeft alle stappen van de intake doorlopen."
         >
           <AssessmentStep />

@@ -4,13 +4,7 @@ import * as React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
-import {
-  ChevronLeft,
-  ChevronRight,
-  CircleCheck,
-  CrossIcon,
-  XIcon,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleCheck, XIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useScrollToTop } from "@/lib/hooks/use-scroll-to-top";
 

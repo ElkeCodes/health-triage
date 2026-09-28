@@ -1,5 +1,4 @@
 import { useFormContext, Controller } from "react-hook-form";
-import type { Symptom, TriageFormValues } from "../_lib/triage-form-values";
 import {
   Field,
   FieldError,
@@ -18,6 +17,8 @@ import {
 } from "@/components/ui/combobox";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import type { Symptom } from "../_models/symptom.type";
+import type { TriageFormValues } from "../_models/triage-form-values.type";
 
 type SymptomsStepProps = {
   symptomOptions: Symptom[];

@@ -1,5 +1,5 @@
 import { useFormContext, useWatch } from "react-hook-form";
-import { TriageFormValues } from "../_lib/triage-form-values";
+import type { TriageFormValues } from "../_models/triage-form-values.type";
 
 function ReviewStep() {
   const { control } = useFormContext<TriageFormValues>();

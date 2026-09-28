@@ -4,17 +4,15 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Wizard } from "@/components/wizard";
 import PatientDetailsStep from "./patient-details-step";
 import ReviewStep from "./review-step";
 import SymptomsStep from "./symptoms-step";
 import AssessmentStep from "./assessment-step";
 import { createTriage } from "../_lib/actions";
 import { triageFormSchema } from "../_lib/triage-schema";
-import type {
-  Symptom,
-  TriageFormValues,
-} from "@/app/triage/_lib/triage-form-values";
+import type { Symptom } from "../_models/symptom.type";
+import type { TriageFormValues } from "../_models/triage-form-values.type";
+import { Wizard } from "@/components/wizard";
 
 type TriageWizardProps = {
   symptomOptions: Symptom[];

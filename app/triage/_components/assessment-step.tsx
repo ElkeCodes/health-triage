@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { suggestSpeciality } from "../_lib/suggest-speciality";
-import { TriageFormValues } from "../_lib/triage-form-values";
+import type { TriageFormValues } from "../_models/triage-form-values.type";
 import {
   getNextStep,
   getTriageUrgency,

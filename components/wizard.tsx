@@ -4,7 +4,13 @@ import * as React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, CircleCheck } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
+  CrossIcon,
+  XIcon,
+} from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useScrollToTop } from "@/lib/hooks/use-scroll-to-top";
 
@@ -59,14 +65,14 @@ function WizardRoot({
     return Math.min(Math.max(initialStep, 0), steps.length - 1);
   });
   const { formState, trigger } = useFormContext();
-  
+
   const activeStepIndex = steps.length
-  ? Math.min(Math.max(currentStep, 0), steps.length - 1)
-  : 0;
+    ? Math.min(Math.max(currentStep, 0), steps.length - 1)
+    : 0;
   const currentStepDefinition = steps[activeStepIndex];
   const progress = steps.length
-  ? ((activeStepIndex + 1) / steps.length) * 100
-  : 0;
+    ? ((activeStepIndex + 1) / steps.length) * 100
+    : 0;
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
 
@@ -110,7 +116,15 @@ function WizardRoot({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
+      <Button
+        variant="ghost"
+        onClick={onCancel}
+        className="absolute top-[-1rem] right-0"
+        aria-label="Annuleren"
+      >
+        <XIcon />
+      </Button>
       <Progress
         value={progress}
         aria-label={`Stap ${activeStepIndex + 1} van de ${steps.length}`}
@@ -136,30 +150,32 @@ function WizardRoot({
         </section>
       </div>
 
-      <div className="flex items-center justify-between gap-3 fixed bottom-0 left-0 right-0 bg-background p-4 border border-muted">
-        <Button type="button" variant="outline" onClick={handlePrevious}>
-          <ChevronLeft />
-          {isFirstStep ? firstStepPreviousLabel : previousLabel}
-        </Button>
+      <div className="fixed bottom-0 left-0 right-0 bg-background p-4 border border-muted">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3 px-6 sm:px-8 lg:px-12">
+          <Button type="button" variant="outline" onClick={handlePrevious}>
+            <ChevronLeft />
+            {isFirstStep ? firstStepPreviousLabel : previousLabel}
+          </Button>
 
-        {isLastStep ? (
-          <Button
-            type="submit"
-            disabled={formState.isSubmitting || formState.isSubmitSuccessful}
-          >
-            {formState.isSubmitting
-              ? "Versturen..."
-              : formState.isSubmitSuccessful
-                ? "Verstuurd"
-                : finishLabel}
-            <CircleCheck />
-          </Button>
-        ) : (
-          <Button type="button" onClick={handleNext}>
-            {nextLabel}
-            <ChevronRight />
-          </Button>
-        )}
+          {isLastStep ? (
+            <Button
+              type="submit"
+              disabled={formState.isSubmitting || formState.isSubmitSuccessful}
+            >
+              {formState.isSubmitting
+                ? "Versturen..."
+                : formState.isSubmitSuccessful
+                  ? "Verstuurd"
+                  : finishLabel}
+              <CircleCheck />
+            </Button>
+          ) : (
+            <Button type="button" onClick={handleNext}>
+              {nextLabel}
+              <ChevronRight />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

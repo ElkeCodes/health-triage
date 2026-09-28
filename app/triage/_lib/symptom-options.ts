@@ -1,5 +1,5 @@
+import type { Symptom } from "../_models/symptom.type";
 import { SPECIALITIES } from "./specialities";
-import type { Symptom } from "./triage-form-values";
 
 export const symptomOptions: Symptom[] = Array.from(
   new Map(

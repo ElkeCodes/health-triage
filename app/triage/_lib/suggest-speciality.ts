@@ -1,5 +1,5 @@
+import type { Symptom } from "../_models/symptom.type";
 import { GENERAL_PRACTICIONER, SPECIALITIES } from "./specialities";
-import { Symptom } from "./triage-form-values";
 
 export const suggestSpeciality = (symptoms: Symptom[]) => {
   const scoredSpecialities = SPECIALITIES.map((speciality, index) => {

@@ -1,6 +1,5 @@
-import type { Symptom } from "./triage-form-values";
-
-export type TriageUrgency = "routine" | "urgent" | "emergency";
+import type { Symptom } from "../_models/symptom.type";
+import type { TriageUrgency } from "../_models/triage-urgency.type";
 
 export function getTriageUrgency(symptoms: Symptom[]): TriageUrgency {
   const highestUrgency = symptoms.reduce(

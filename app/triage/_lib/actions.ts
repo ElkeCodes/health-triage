@@ -1,12 +1,14 @@
 "use server";
 
 import prisma from "@/lib/database";
+import { suggestSymptoms } from "./symptom-suggestion.agent";
 import { suggestSpeciality } from "./suggest-speciality";
 import {
   getTriageUrgency,
   getNextStep,
   getConsultationType,
 } from "./triage-urgency";
+import type { Symptom } from "../_models/symptom.type";
 import type { TriagePayload } from "./triage-schema";
 import { triagePayloadSchema } from "./triage-schema";
 
@@ -27,4 +29,11 @@ export async function createTriage(input: TriagePayload) {
       consultationType: getConsultationType(urgency),
     },
   });
+}
+
+export async function getSymptomSuggestions(input: {
+  selectedSymptoms: string[];
+  searchValue: string;
+}): Promise<Symptom[]> {
+  return suggestSymptoms(input);
 }

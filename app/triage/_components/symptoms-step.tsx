@@ -1,4 +1,8 @@
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext, Controller, useWatch } from "react-hook-form";
+import { useState } from "react";
+import type { Symptom } from "../_models/symptom.type";
+import type { TriageFormValues } from "../_models/triage-form-values.type";
+import { useSuggestions } from "../_hooks/use-suggestions";
 import {
   Field,
   FieldError,
@@ -16,22 +20,30 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import type { Symptom } from "../_models/symptom.type";
-import type { TriageFormValues } from "../_models/triage-form-values.type";
 
 type SymptomsStepProps = {
   symptomOptions: Symptom[];
-  mostPopularSymptoms: Symptom[];
+  suggestedSymptoms: Symptom[];
 };
 
 function SymptomsStep({
   symptomOptions,
-  mostPopularSymptoms,
+  suggestedSymptoms,
 }: SymptomsStepProps) {
   const { control, trigger } = useFormContext<TriageFormValues>();
+  const watchedSymptoms = useWatch({
+    control,
+    name: "symptoms",
+    defaultValue: [],
+  });
   const [searchValue, setSearchValue] = useState("");
   const [recentSymptom, setRecentSymptom] = useState<string | null>(null);
+  const { suggestions, loading } = useSuggestions({
+    selectedSymptoms: watchedSymptoms,
+    searchValue,
+    initialSuggestions: suggestedSymptoms,
+  });
+
   const filteredOptions = (options: Symptom[], selected: Symptom[]) => {
     const query = searchValue.trim().toLowerCase();
 
@@ -57,7 +69,7 @@ function SymptomsStep({
           };
 
           return (
-            <FieldSet className="grid gap-3">
+            <FieldSet className="grid gap-3" aria-busy={loading}>
               <FieldLegend variant="label">
                 Welke symptomen ervaart u?
               </FieldLegend>
@@ -112,7 +124,7 @@ function SymptomsStep({
               <div className="grid gap-2">
                 {[
                   ...field.value,
-                  ...mostPopularSymptoms.filter(
+                  ...suggestions.filter(
                     (symptom) =>
                       !field.value.some(
                         (selectedSymptom) =>
@@ -160,6 +172,11 @@ function SymptomsStep({
                     </Field>
                   );
                 })}
+                {loading && (
+                  <p className="text-sm text-muted-foreground">
+                    Suggesties worden geladen...
+                  </p>
+                )}
               </div>
               <FieldError errors={[fieldState.error]} />
             </FieldSet>

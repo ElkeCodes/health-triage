@@ -6,17 +6,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import PatientDetailsStep from "./patient-details-step";
 import ReviewStep from "./review-step";
-import SymptomsStep from "./symptoms-step";
 import AssessmentStep from "./assessment-step";
 import { createTriage } from "../_lib/actions";
 import { triageFormSchema } from "../_lib/triage-schema";
 import type { Symptom } from "../_models/symptom.type";
 import type { TriageFormValues } from "../_models/triage-form-values.type";
 import { Wizard } from "@/components/wizard";
+import SymptomsStep from "./symptoms-step";
 
 type TriageWizardProps = {
   symptomOptions: Symptom[];
-  mostPopularSymptoms: Symptom[];
+  suggestedSymptoms: Symptom[];
 };
 
 const initialValues: TriageFormValues = {
@@ -25,12 +25,16 @@ const initialValues: TriageFormValues = {
   symptoms: [],
 };
 
-const patientDetailsFields = ["age", "gender"] as const satisfies ReadonlyArray<keyof TriageFormValues>;
-const symptomFields = ["symptoms"] as const satisfies ReadonlyArray<keyof TriageFormValues>;
+const patientDetailsFields = ["age", "gender"] as const satisfies ReadonlyArray<
+  keyof TriageFormValues
+>;
+const symptomFields = ["symptoms"] as const satisfies ReadonlyArray<
+  keyof TriageFormValues
+>;
 
 function TriageWizard({
   symptomOptions,
-  mostPopularSymptoms,
+  suggestedSymptoms,
 }: TriageWizardProps) {
   const form = useForm<
     z.input<typeof triageFormSchema>,
@@ -67,7 +71,7 @@ function TriageWizard({
           >
             <SymptomsStep
               symptomOptions={symptomOptions}
-              mostPopularSymptoms={mostPopularSymptoms}
+              suggestedSymptoms={suggestedSymptoms}
             />
           </Wizard.Step>
 

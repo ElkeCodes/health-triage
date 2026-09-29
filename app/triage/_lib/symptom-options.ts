@@ -10,7 +10,11 @@ export const symptomOptions: Symptom[] = Array.from(
   ).values(),
 ).sort((a, b) => a.name.localeCompare(b.name));
 
-export const mostPopularSymptoms: Symptom[] = [
+export const symptomOptionsByName = new Map(
+  symptomOptions.map((symptom) => [symptom.name, symptom] as const),
+);
+
+export const defaultSuggestedSymptoms: Symptom[] = [
   symptomOptions.find((symptom) => symptom.name === "Buikpijn"),
   symptomOptions.find(
     (symptom) => symptom.name === "Hevige of plotselinge hoofdpijn",

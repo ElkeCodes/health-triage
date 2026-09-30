@@ -23,7 +23,7 @@ const symptomSuggestionAgent = new Agent({
     "Geef de voorkeur aan symptomen die logisch aansluiten op de geselecteerde symptomen en de zoekterm.",
     "Antwoord uitsluitend met de namen van symptomen uit de lijst, zonder extra uitleg.",
   ],
-  model: "google/gemini-3.5-flash",
+  model: "openai/gpt-5.4-mini",
 });
 
 type SuggestSymptomsInput = {

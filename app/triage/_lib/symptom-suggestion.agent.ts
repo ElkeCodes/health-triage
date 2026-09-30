@@ -29,6 +29,7 @@ const symptomSuggestionAgent = new Agent({
 type SuggestSymptomsInput = {
   selectedSymptoms: string[];
   searchValue: string;
+  followUpContext?: string[];
 };
 
 function uniqueByName(symptoms: Symptom[]) {
@@ -71,9 +72,11 @@ function normalizeSuggestions(
 export async function suggestSymptoms({
   selectedSymptoms,
   searchValue,
+  followUpContext,
 }: SuggestSymptomsInput) {
   const selectedNames = selectedSymptoms.filter(Boolean);
   const search = searchValue.trim();
+  const followUpNotes = followUpContext?.filter(Boolean) ?? [];
 
   try {
     const prompt = [
@@ -81,6 +84,9 @@ export async function suggestSymptoms({
       selectedNames.length
         ? `Al geselecteerd: ${selectedNames.join(", ")}`
         : "Er zijn nog geen symptomen geselecteerd.",
+      followUpNotes.length
+        ? `Vervolgangs-antwoorden: ${followUpNotes.join(" | ")}`
+        : "Er zijn nog geen vervolgvraag-antwoorden gekozen.",
       search
         ? `Huidige zoekterm: ${search}`
         : "De gebruiker typt nog geen extra zoekterm.",

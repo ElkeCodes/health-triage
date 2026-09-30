@@ -5,6 +5,16 @@ const symptomSchema = z.object({
   urgency: z.number().int().min(1).max(3),
 });
 
+const questionSchema = z.object({
+  symptomName: z
+    .string()
+    .min(1, "Elke vervolgvraag moet aan een symptoom gekoppeld zijn."),
+  questionKey: z.string().min(1, "Elke vervolgvraag moet een sleutel hebben."),
+  questionText: z.string().min(1, "Elke vervolgvraag moet tekst hebben."),
+  answerValues: z.array(z.string()).default([]),
+  options: z.array(z.string()).default([]),
+});
+
 export const triageFormSchema = z.object({
   age: z
     .string()
@@ -33,6 +43,7 @@ export const triageFormSchema = z.object({
   symptoms: z
     .array(symptomSchema)
     .min(1, "Gelieve minstens één symptoom te selecteren."),
+  questions: z.array(questionSchema).default([]),
 });
 
 export const triagePayloadSchema = triageFormSchema.extend({

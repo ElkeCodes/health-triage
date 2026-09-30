@@ -6,6 +6,7 @@ type UseSuggestionsInput = {
   selectedSymptoms: Symptom[];
   searchValue: string;
   initialSuggestions: Symptom[];
+  followUpContext?: string[];
 };
 
 type UseSuggestionsResult = {
@@ -17,6 +18,7 @@ export function useSuggestions({
   selectedSymptoms,
   searchValue,
   initialSuggestions,
+  followUpContext,
 }: UseSuggestionsInput) {
   const [suggestions, setSuggestions] = useState(initialSuggestions);
   const [loading, setLoading] = useState(false);
@@ -24,6 +26,10 @@ export function useSuggestions({
   const selectedSymptomNames = useMemo(
     () => selectedSymptoms.map((symptom) => symptom.name),
     [selectedSymptoms],
+  );
+  const followUpSignature = useMemo(
+    () => followUpContext?.join(" | ") ?? "",
+    [followUpContext],
   );
 
   useEffect(() => {
@@ -36,6 +42,7 @@ export function useSuggestions({
         const nextSuggestions = await getSymptomSuggestions({
           selectedSymptoms: selectedSymptomNames,
           searchValue,
+          followUpContext,
         });
 
         if (
@@ -54,9 +61,7 @@ export function useSuggestions({
       }
     };
 
-    if (
-      JSON.stringify(initialSuggestions) !== JSON.stringify(selectedSymptoms)
-    ) {
+    if (JSON.stringify(initialSuggestions) !== JSON.stringify(selectedSymptoms)) {
       void loadSuggestions();
     }
 
@@ -64,7 +69,7 @@ export function useSuggestions({
       requestIdRef.current += 1;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue, selectedSymptomNames]);
+  }, [searchValue, selectedSymptomNames, followUpSignature]);
 
   return { suggestions, loading } satisfies UseSuggestionsResult;
 }

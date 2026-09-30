@@ -23,6 +23,7 @@ const initialValues: TriageFormValues = {
   age: "",
   gender: null,
   symptoms: [],
+  questions: [],
 };
 
 const patientDetailsFields = ["age", "gender"] as const satisfies ReadonlyArray<

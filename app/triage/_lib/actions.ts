@@ -27,6 +27,16 @@ export async function createTriage(input: TriagePayload) {
       pathway: suggestedSpeciality.speciality.naam,
       next: getNextStep(urgency),
       consultationType: getConsultationType(urgency),
+      questions: {
+        create: values.questions.map((question) => ({
+          symptomName: question.symptomName,
+          questionKey: question.questionKey,
+          questionText: question.questionText,
+          answerValues: question.answerValues,
+          options: question.options,
+          answeredAt: question.answerValues.length ? new Date() : null,
+        })),
+      },
     },
   });
 }
@@ -34,6 +44,7 @@ export async function createTriage(input: TriagePayload) {
 export async function getSymptomSuggestions(input: {
   selectedSymptoms: string[];
   searchValue: string;
+  followUpContext?: string[];
 }): Promise<Symptom[]> {
   return suggestSymptoms(input);
 }

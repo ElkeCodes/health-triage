@@ -8,13 +8,30 @@ datasource db {
 }
 
 model Triage {
-  id               Int      @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   age              Int
   gender           String
-  symptoms         String[] @default([])
+  symptoms         String[]   @default([])
   urgency          String
   pathway          String
   next             String
   consultationType String
-  createdAt        DateTime @default(now())
+  questions        Question[]
+  createdAt        DateTime   @default(now())
+}
+
+model Question {
+  id           Int       @id @default(autoincrement())
+  triageId     Int
+  symptomName  String
+  questionKey  String
+  questionText String
+  answerValues String[]  @default([])
+  options      String[]  @default([])
+  askedAt      DateTime  @default(now())
+  answeredAt   DateTime?
+  triage       Triage    @relation(fields: [triageId], references: [id], onDelete: Cascade)
+
+  @@index([triageId])
+  @@map("Questions")
 }

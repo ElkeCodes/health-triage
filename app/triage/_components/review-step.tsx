@@ -32,6 +32,39 @@ function ReviewStep() {
           </span>
         </div>
       </div>
+
+      <div className="grid gap-3 rounded-xl border border-input bg-background p-4 text-sm">
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-muted-foreground">Vervolgvraag-antwoorden</span>
+          <span className="font-medium">{values.questions?.length ?? 0}</span>
+        </div>
+        <div className="grid gap-3">
+          {values.questions?.length ? (
+            values.questions.map((question) => (
+              <div
+                key={`${question.symptomName}-${question.questionKey}`}
+                className="grid gap-1 rounded-lg border border-input p-3"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="grid gap-0.5">
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                      {question.symptomName}
+                    </span>
+                    <span className="font-medium">{question.questionText}</span>
+                  </div>
+                </div>
+                <div className="text-muted-foreground">
+                  {(question.answerValues ?? []).length
+                    ? (question.answerValues ?? []).join(", ")
+                    : "Nog geen antwoord"}
+                </div>
+              </div>
+            ))
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

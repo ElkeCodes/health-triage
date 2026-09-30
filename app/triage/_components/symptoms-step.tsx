@@ -1,16 +1,25 @@
 import { useFormContext, Controller, useWatch } from "react-hook-form";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Symptom } from "../_models/symptom.type";
 import type { TriageFormValues } from "../_models/triage-form-values.type";
 import { useSuggestions } from "../_hooks/use-suggestions";
+import { getSymptomFollowUp } from "../_lib/symptom-follow-up";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldLabel,
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Combobox,
   ComboboxContent,
@@ -31,6 +40,7 @@ function SymptomsStep({
   suggestedSymptoms,
 }: SymptomsStepProps) {
   const { control, trigger } = useFormContext<TriageFormValues>();
+  const { setValue } = useFormContext<TriageFormValues>();
   const watchedSymptoms = useWatch({
     control,
     name: "symptoms",
@@ -38,11 +48,62 @@ function SymptomsStep({
   });
   const [searchValue, setSearchValue] = useState("");
   const [recentSymptom, setRecentSymptom] = useState<string | null>(null);
+  const [activeFollowUpSymptoms, setActiveFollowUpSymptoms] = useState<string[]>(
+    [],
+  );
+  const [followUpAnswers, setFollowUpAnswers] = useState<Record<string, string[]>>(
+    {},
+  );
+
+  const followUpContext = useMemo(
+    () =>
+      watchedSymptoms.map((symptom) => {
+        const answer = followUpAnswers[symptom.name];
+
+        return answer?.length ? `${symptom.name}: ${answer.join(", ")}` : symptom.name;
+      }),
+    [followUpAnswers, watchedSymptoms],
+  );
+
   const { suggestions, loading } = useSuggestions({
     selectedSymptoms: watchedSymptoms,
     searchValue,
     initialSuggestions: suggestedSymptoms,
+    followUpContext,
   });
+
+  const activeFollowUpQuestions = useMemo(
+    () =>
+      activeFollowUpSymptoms
+        .map((symptomName) => getSymptomFollowUp(symptomName))
+        .filter((question) =>
+          watchedSymptoms.some(
+            (symptom) => symptom.name === question.symptomName,
+          ),
+        ),
+    [activeFollowUpSymptoms, watchedSymptoms],
+  );
+
+  const syncQuestionValues = (
+    nextActiveSymptoms: string[],
+    nextAnswers: Record<string, string[]>,
+  ) => {
+    setValue(
+      "questions",
+      nextActiveSymptoms.map((symptomName) => {
+        const question = getSymptomFollowUp(symptomName);
+
+        return {
+          symptomName: question.symptomName,
+          questionKey: question.questionKey,
+          questionText: question.question,
+          answerValues: nextAnswers[symptomName] ?? [],
+          options: question.options,
+        };
+      }),
+      { shouldDirty: true, shouldValidate: true },
+    );
+  };
 
   const filteredOptions = (options: Symptom[], selected: Symptom[]) => {
     const query = searchValue.trim().toLowerCase();
@@ -68,6 +129,54 @@ function SymptomsStep({
             void trigger("symptoms");
           };
 
+          const markSymptomSelected = (symptomName: string) => {
+            setRecentSymptom(symptomName);
+            setActiveFollowUpSymptoms((current) =>
+              current.includes(symptomName) ? current : [...current, symptomName],
+            );
+          };
+
+          const selectSymptom = (symptomName: string) => {
+            const selectedSymptom = symptomOptions.find(
+              (symptom) => symptom.name === symptomName,
+            );
+
+            if (!selectedSymptom) {
+              return;
+            }
+
+            if (field.value.some((symptom) => symptom.name === symptomName)) {
+              markSymptomSelected(symptomName);
+              return;
+            }
+
+            const nextActiveSymptoms = activeFollowUpSymptoms.includes(symptomName)
+              ? activeFollowUpSymptoms
+              : [...activeFollowUpSymptoms, symptomName];
+
+            markSymptomSelected(symptomName);
+            syncSymptoms([...field.value, selectedSymptom]);
+            syncQuestionValues(nextActiveSymptoms, followUpAnswers);
+            setSearchValue("");
+          };
+
+          const deselectSymptom = (symptomName: string) => {
+            const nextSymptoms = field.value.filter(
+              (current) => current.name !== symptomName,
+            );
+            const nextActiveSymptoms = activeFollowUpSymptoms.filter(
+              (name) => name !== symptomName,
+            );
+            const nextAnswers = { ...followUpAnswers };
+
+            delete nextAnswers[symptomName];
+
+            syncSymptoms(nextSymptoms);
+            setFollowUpAnswers(nextAnswers);
+            setActiveFollowUpSymptoms(nextActiveSymptoms);
+            syncQuestionValues(nextActiveSymptoms, nextAnswers);
+          };
+
           return (
             <FieldSet className="grid gap-3" aria-busy={loading}>
               <FieldLegend variant="label">
@@ -81,24 +190,11 @@ function SymptomsStep({
                   }
                 }}
                 onValueChange={(value: string | null) => {
-                  if (
-                    !value ||
-                    field.value.some((symptom) => symptom.name === value)
-                  ) {
+                  if (!value) {
                     return;
                   }
 
-                  const selectedSymptom = symptomOptions.find(
-                    (symptom) => symptom.name === value,
-                  );
-
-                  if (!selectedSymptom) {
-                    return;
-                  }
-
-                  setRecentSymptom(value);
-                  syncSymptoms([...field.value, selectedSymptom]);
-                  setSearchValue("");
+                  selectSymptom(value);
                 }}
               >
                 <ComboboxInput
@@ -121,6 +217,92 @@ function SymptomsStep({
                   </ComboboxList>
                 </ComboboxContent>
               </Combobox>
+              {field.value.length ? (
+                <div className="grid gap-2">
+                  {activeFollowUpQuestions.length ? (
+                    <div className="grid gap-3">
+                      {activeFollowUpQuestions.map((question) => (
+                        <Card
+                          key={question.symptomName}
+                          size="sm"
+                          className="border-primary/20 bg-primary/5"
+                        >
+                          <CardHeader>
+                            <CardTitle className="text-sm">
+                              Vervolgvraag voor {question.symptomName}
+                            </CardTitle>
+                            <CardDescription>
+                              {question.question}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="grid gap-3 pt-0">
+                            <FieldDescription>{question.helperText}</FieldDescription>
+                            <div className="grid gap-2">
+                              {question.options.map((option) => {
+                                const id = `follow-up-${question.symptomName.toLowerCase().replaceAll(" ", "-")}-${option.toLowerCase().replaceAll(" ", "-")}`;
+                                const selectedOptions =
+                                  followUpAnswers[question.symptomName] ?? [];
+                                const checked = selectedOptions.includes(option);
+
+                                return (
+                                  <Field
+                                    key={option}
+                                    orientation="horizontal"
+                                    className="items-center gap-3 rounded-lg border border-input px-3 py-2"
+                                  >
+                                    <Checkbox
+                                      id={id}
+                                      checked={checked}
+                                      onCheckedChange={(nextChecked) => {
+                                        const isChecked = Boolean(nextChecked);
+
+                                        setFollowUpAnswers((current) => {
+                                          const currentOptions = current[
+                                            question.symptomName
+                                          ]
+                                            ? [...current[question.symptomName]]
+                                            : [];
+
+                                          if (isChecked) {
+                                            if (!currentOptions.includes(option)) {
+                                              currentOptions.push(option);
+                                            }
+                                          } else {
+                                            const optionIndex = currentOptions.indexOf(option);
+
+                                            if (optionIndex >= 0) {
+                                              currentOptions.splice(optionIndex, 1);
+                                            }
+                                          }
+
+                                          const nextAnswers = {
+                                            ...current,
+                                            [question.symptomName]: currentOptions,
+                                          };
+
+                                          syncQuestionValues(
+                                            activeFollowUpSymptoms,
+                                            nextAnswers,
+                                          );
+
+                                          return nextAnswers;
+                                        });
+                                      }}
+                                    />
+                                    <FieldLabel htmlFor={id} className="font-normal">
+                                      {option}
+                                    </FieldLabel>
+                                  </Field>
+                                );
+                              })}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
               <div className="grid gap-2">
                 {[
                   ...field.value,
@@ -156,18 +338,21 @@ function SymptomsStep({
                           const isChecked = Boolean(nextChecked);
 
                           if (isChecked) {
-                            syncSymptoms([...field.value, symptom]);
+                            selectSymptom(symptom.name);
                           } else {
-                            syncSymptoms(
-                              field.value.filter(
-                                (current) => current.name !== symptom.name,
-                              ),
-                            );
+                            deselectSymptom(symptom.name);
                           }
                         }}
                       />
                       <FieldLabel htmlFor={id} className="font-normal">
-                        {symptom.name}
+                        <span className="flex flex-col gap-1">
+                          <span>{symptom.name}</span>
+                          {followUpAnswers[symptom.name]?.length ? (
+                            <span className="text-xs text-muted-foreground">
+                              {followUpAnswers[symptom.name].join(", ")}
+                            </span>
+                          ) : null}
+                        </span>
                       </FieldLabel>
                     </Field>
                   );

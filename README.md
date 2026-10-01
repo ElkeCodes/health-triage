@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Health Triage
 
-## Getting Started
+Health Triage is a full-stack medical triage web app that guides patients through a structured symptom intake, helps them narrow down what they’re experiencing, and suggests the most appropriate next step in care.
+The experience is designed as a multi-step wizard: users enter basic patient details, select symptoms, answer contextual follow-up questions, review their intake, and submit the triage for processing and storage.
+It is meant as a portfolio project because it combines a polished user experience with real backend logic, AI-assisted assistance, and database persistence.
 
-First, run the development server:
+## Technologies used and why
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+* Next.js 16 + React 19: Used for the app shell, routing, server actions, and API routes. It’s a great fit for a full-stack project because the UI and backend logic live in one codebase.
+* TypeScript: Keeps the triage data model, form values, symptom types, and API payloads strongly typed. That matters a lot in a workflow-heavy app where data consistency is important.
+* React Hook Form + Zod: Enables the use of a multi-step form with validation. This gives the wizard a clean UX while enforcing structured input before submission.
+* Prisma ORM + PostgreSQL: Used to persist triage submissions and follow-up answers. Prisma makes the data layer type-safe and easy to evolve, while PostgreSQL gives the app a reliable relational backend.
+* Mastra + OpenAI: Drives the AI-assisted symptom suggestion engine. This adds intelligent, context-aware symptom recommendations based on selected symptoms, search terms, and follow-up answers.
+* Tailwind CSS + shadcn-style reusable UI components + Lucide icons: Used to create a clean, accessible interface quickly, without sacrificing consistency or responsiveness.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+It is meant to be deployed on Vercel with the database deployed on Neon
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key features
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* Multi-step triage wizard: A guided intake flow that keeps the experience simple and structured.
+* Symptom search and selection: Users can search a symptom list, select multiple symptoms, and refine their intake.
+* AI-assisted symptom suggestions: The app suggests relevant next symptoms dynamically, based on the current context. If the AI is unavailable, it returns back fallback data
+* Adaptive follow-up questions: Each symptom can trigger chained follow-up questions to capture more detail and improve triage quality such as defining where on your chest you have chest pain.
+* Urgency scoring and care guidance: Selected symptoms are used to determine urgency and recommend the next care step.
+* Specialty routing: The app suggests the most relevant medical specialty based on the symptom profile. This is done deterministically by linking symptoms to specialities with added weights for the urgency.
+* Review screen before submission: Users can verify all details, including follow-up answers, before sending the triage.
+* Database persistence: Triage records and follow-up questions are stored for later retrieval and review.
+* Emergency warning on the landing page: A clear safety notice directs users to urgent help when necessary.
